@@ -53,13 +53,13 @@ async function requestToken() {
     })
   );
 
-  const req = await got.post(requestTokenURL, {
+  const req = await axios.post(requestTokenURL, {
     headers: {
       Authorization: authHeader["Authorization"],
     },
   });
   if (req.body) {
-    return qs.parse(req.body);
+    return req.body;
   } else {
     throw new Error("Cannot get an OAuth request token");
   }
@@ -85,7 +85,7 @@ async function accessToken({ oauth_token, oauth_token_secret }, verifier) {
   }
 }
 
-async function getRequest({ oauth_token, oauth_token_secret }) {
+async function getRequest({ oauth_token, oauth_token_secret }, tweet) {
   const token = {
     key: oauth_token,
     secret: oauth_token_secret,
@@ -102,7 +102,7 @@ async function getRequest({ oauth_token, oauth_token_secret }) {
   );
 
   const req = await got.post(endpointURL, {
-    json: data,
+    json: {text: tweet.tweet},
     responseType: "json",
     headers: {
       Authorization: authHeader["Authorization"],
@@ -118,7 +118,7 @@ async function getRequest({ oauth_token, oauth_token_secret }) {
   }
 }
 
-let oAuthAccessToken = null
+let oAuthAccessToken = null;
 
 // Function to print data from the database
 const printData = async () => {
@@ -132,7 +132,7 @@ const printData = async () => {
       },
     });
     if (data.length) {
-      if(!oAuthAccessToken) {
+      if (!oAuthAccessToken) {
         const oAuthRequestToken = await requestToken();
         // Get authorization
         authorizeURL.searchParams.append(
@@ -144,9 +144,12 @@ const printData = async () => {
         oAuthAccessToken = await accessToken(oAuthRequestToken, pin.trim());
       }
 
-      const postedData = await data.map(async (tweet) => {
-        // get Access Token
-      });
+      const postedData = Promise.all(data.map(async (tweet) => {
+        const response = await getRequest(oAuthAccessToken, tweet);
+        console.dir(response, {
+          depth: null,
+        });
+      }));
     }
     console.log("Data from database:", data);
   } catch (error) {
