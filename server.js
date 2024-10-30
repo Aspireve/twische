@@ -9,13 +9,13 @@ const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const prisma = new PrismaClient();
 const handle = app.getRequestHandler();
-console.log(process.env.APP_KEY)
 const twitterClient = new TwitterApi({
   appKey: process.env.APP_KEY,
   appSecret: process.env.APP_SECRET,
   accessToken: process.env.ACCESS_TOKEN,
   accessSecret: process.env.ACCESS_SECRET,
 });
+const PORT = process.env.PORT
 
 // Function to print data from the database
 const printData = async () => {
@@ -68,7 +68,7 @@ app.prepare().then(() => {
     return handle(req, res);
   });
 
-  server.listen(3000, () => {
-    console.log("> Ready on http://localhost:3000");
+  server.listen(PORT, () => {
+    console.log(`Ready on http://localhost:PORT`);
   });
 });
