@@ -53,7 +53,7 @@ const printData = async () => {
 
 // Schedule a job to run every 15 seconds
 const scheduleJob = () => {
-  cron.schedule("*/25 * * * *", () => {
+  cron.schedule("*/2 * * * *", () => {
     printData();
   });
 };
